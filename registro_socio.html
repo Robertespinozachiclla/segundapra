@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro de Socios</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="container">
+    <h2>Registro de Socio</h2>
+
+    <form id="formSocio">
+        <label>DNI del alumno</label>
+        <input type="text" id="dni" required>
+
+        <label>Nombre</label>
+        <input type="text" id="nombre" required>
+
+        <label>Apellido</label>
+        <input type="text" id="apellido" required>
+
+        <label>Certificado de alumno regular</label>
+        <select id="certificado" required>
+            <option value="">Seleccione...</option>
+            <option value="Sí">Presentado</option>
+            <option value="No">No presentado</option>
+        </select>
+
+        <button type="submit">Registrar</button>
+    </form>
+</div>
+
+<script>
+    document.getElementById("formSocio").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        let socios = JSON.parse(localStorage.getItem("socios")) || [];
+
+        const nuevoSocio = {
+            dni: document.getElementById("dni").value,
+            nombre: document.getElementById("nombre").value,
+            apellido: document.getElementById("apellido").value,
+            certificado: document.getElementById("certificado").value
+        };
+
+        socios.push(nuevoSocio);
+        localStorage.setItem("socios", JSON.stringify(socios));
+
+        alert("Socio registrado con éxito.");
+        window.location.href = "indexd.html";
+    });
+</script>
+
+</body>
+</html>

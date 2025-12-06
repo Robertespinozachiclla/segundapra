@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Préstamos</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="container">
+    <h2>Registrar Préstamo</h2>
+
+    <form id="formPrestamo">
+
+        <label>Número de socio (solo socios registrados)</label>
+        <select id="socioSelect" required>
+            <option value="">Seleccione un socio</option>
+        </select>
+
+        <label>Seleccione el libro</label>
+        <input type="text" id="libro" required>
+
+        <label>Ejemplar</label>
+        <input type="text" id="ejemplar" required>
+
+        <label>Fecha de préstamo</label>
+        <input type="date" id="fechaPrestamo" required>
+
+        <label>Fecha de vencimiento</label>
+        <input type="date" id="fechaVencimiento" required>
+
+        <button type="submit">Registrar Préstamo</button>
+    </form>
+</div>
+
+<script>
+    function cargarSocios() {
+        const socios = JSON.parse(localStorage.getItem("socios")) || [];
+        const select = document.getElementById("socioSelect");
+
+        socios.forEach((socio, index) => {
+            const option = document.createElement("option");
+            option.value = index + 1;
+            option.textContent = `${index + 1} - ${socio.nombre} ${socio.apellido}`;
+            select.appendChild(option);
+        });
+    }
+
+    cargarSocios();
+
+    document.getElementById("formPrestamo").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const prestamo = {
+            socio: document.getElementById("socioSelect").value,
+            libro: document.getElementById("libro").value,
+            ejemplar: document.getElementById("ejemplar").value,
+            fechaPrestamo: document.getElementById("fechaPrestamo").value,
+            fechaVencimiento: document.getElementById("fechaVencimiento").value
+        };
+
+        let prestamos = JSON.parse(localStorage.getItem("prestamos")) || [];
+        prestamos.push(prestamo);
+        localStorage.setItem("prestamos", JSON.stringify(prestamos));
+
+        alert("Préstamo registrado correctamente");
+        window.location.href = "indexd.html";
+    });
+</script>
+
+</body>
+</html>

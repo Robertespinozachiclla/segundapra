@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Devolución de Libros</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="container">
+    <h2>Registrar Devolución</h2>
+
+    <!-- Estado del socio -->
+    <div id="estadoSocio" style="font-weight:bold; margin-bottom:12px;"></div>
+
+    <form id="formDevolucion">
+
+        <label>Número de socio</label>
+        <select id="selectSocio" required>
+            <option value="">Seleccione un socio</option>
+        </select>
+
+        <label>Seleccione un préstamo activo</label>
+        <select id="selectPrestamo" required>
+            <option value="">Seleccione...</option>
+        </select>
+
+        <label>Fecha de devolución</label>
+        <input type="date" id="fechaDevolucion" required>
+
+        <button type="submit">Registrar Devolución</button>
+    </form>
+</div>
+
+<script>
+    const socios = JSON.parse(localStorage.getItem("socios")) || [];
+    const prestamos = JSON.parse(localStorage.getItem("prestamos")) || [];
+
+    const selectSocio = document.getElementById("selectSocio");
+    const selectPrestamo = document.getElementById("selectPrestamo");
+    const estadoSocio = document.getElementById("estadoSocio");
+
+    // Cargar socios
+    socios.forEach((socio, index) => {
+        let option = document.createElement("option");
+        option.value = index;
+        option.textContent = `${index + 1} - ${socio.nombre} ${socio.apellido}`;
+        selectSocio.appendChild(option);
+    });
+
+    // Al seleccionar un socio, mostrar su estado y préstamos
+    selectSocio.addEventListener("change", function () {
+        const index = selectSocio.value;
+
+        if (index === "") return;
+
+        let socio = socios[index];
+        let hoy = new Date();
+
+        // Revisar suspensión actual
+        if (socio.suspendidoHasta) {
+            let fechaSusp = new Date(socio.suspendidoHasta);
+            if (fechaSusp > hoy) {
+                estadoSocio.textContent = `Estado: 🚫 Suspendido hasta ${fechaSusp.toLocaleDateString()}`;
+                estadoSocio.style.color = "red";
+            } else {
+                // Ya cumplió la suspensión
+                delete socio.suspendidoHasta;
+                localStorage.setItem("socios", JSON.stringify(socios));
+                estadoSocio.textContent = "Estado: ✔ Habilitado";
+                estadoSocio.style.color = "green";
+            }
+        } else {
+            estadoSocio.textContent = "Estado: ✔ Habilitado";
+            estadoSocio.style.color = "green";
+        }
+
+        // Limpiar préstamos del select
+        selectPrestamo.innerHTML = `<option value="">Seleccione...</option>`;
+
+        // Cargar préstamos SOLO del socio seleccionado
+        prestamos.forEach((p, i) => {
+            if (p.socio == index + 1) {
+                let op = document.createElement("option");
+                op.value = i;
+                op.textContent = `${p.libro} - ${p.ejemplar} (Vence: ${p.fechaVencimiento})`;
+                selectPrestamo.appendChild(op);
+            }
+        });
+    });
+
+    // Procesar devolución
+    document.getElementById("formDevolucion").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const indexSocio = selectSocio.value;
+        const indexPrestamo = selectPrestamo.value;
+        const fechaDev = new Date(document.getElementById("fechaDevolucion").value);
+
+        if (indexSocio === "" || indexPrestamo === "") {
+            alert("Debe seleccionar un socio y un préstamo.");
+            return;
+        }
+
+        let socio = socios[indexSocio];
+        let prestamo = prestamos[indexPrestamo];
+        let fechaVenc = new Date(prestamo.fechaVencimiento);
+
+        // Verificar vencimiento
+        if (fechaDev > fechaVenc) {
+            alert("⚠ El préstamo está vencido. El socio será suspendido por 15 días.");
+            
+            // Suspensión por 15 días
+            let suspenderHasta = new Date();
+            suspenderHasta.setDate(suspenderHasta.getDate() + 15);
+            socio.suspendidoHasta = suspenderHasta.toISOString();
+
+            localStorage.setItem("socios", JSON.stringify(socios));
+        }
+
+        // Eliminar préstamo devuelto (liberar ejemplar)
+        prestamos.splice(indexPrestamo, 1);
+        localStorage.setItem("prestamos", JSON.stringify(prestamos));
+
+        alert("✔ Devolución registrada correctamente");
+        window.location.href = "index.html";
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Biblioteca - Menú Principal</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="container">
+    <h2>Menú Principal</h2>
+
+    <div class="menu">
+        <a href="registro_socio.html"><button>Registrar Socio</button></a>
+        <a href="registro_libros.html"><button>Registrar Libros</button></a>
+        <a href="prestamos.html"><button>Registrar Préstamo</button></a>
+        <a href="devoluciones.html"><button>Registrar Devolución</button></a>
+    </div>
+</div>
+
+<div class="container">
+    <h2>Socios Registrados</h2>
+
+    <table border="1" width="100%" cellpadding="8">
+        <thead>
+            <tr>
+                <th>N° Socio</th>
+                <th>DNI</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Certificado</th>
+            </tr>
+        </thead>
+        <tbody id="tablaSocios"></tbody>
+    </table>
+</div>
+
+<script>
+    function cargarSocios() {
+        let socios = JSON.parse(localStorage.getItem("socios")) || [];
+        let tabla = document.getElementById("tablaSocios");
+        tabla.innerHTML = ""; // limpia la tabla
+
+        socios.forEach((socio, index) => {
+            const fila = `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${socio.dni}</td>
+                    <td>${socio.nombre}</td>
+                    <td>${socio.apellido}</td>
+                    <td>${socio.certificado}</td>
+                </tr>
+            `;
+            tabla.innerHTML += fila;
+        });
+    }
+
+    cargarSocios();
+</script>
+
+</body>
+</html>
